@@ -13,6 +13,7 @@
 #include "PathFollowing/Feedback/PID.h"
 #include "PathFollowing/FeedForward/feedforward.h"
 #include "Localization/particle_filter.h"
+#include "Commands/RamseteCmd.h"
 
 using namespace pros;
 
@@ -371,8 +372,8 @@ void main_loop(QuinticSpline& path, Ramsette& ramsette, PID& left_PID, PID& righ
 
 		const double wheelCirc = M_PI * left_config.wheel_diameter;
 
-		double targetLeftVel = (targetLeftVel / wheelCirc) * 60.0 * left_config.gear_ratio;
-		double targetRightVel = (targetRightVel / wheelCirc) * 60.0 * right_config.gear_ratio;
+		 targetLeftVel = (targetLeftVel / wheelCirc) * 60.0 * left_config.gear_ratio;
+		 targetRightVel = (targetRightVel / wheelCirc) * 60.0 * right_config.gear_ratio;
 
 		double actualLeftVel  = LeftDrive.get_actual_velocity();
 		double actualRightVel = RightDrive.get_actual_velocity();
@@ -388,8 +389,8 @@ void main_loop(QuinticSpline& path, Ramsette& ramsette, PID& left_PID, PID& righ
 
 		Eigen::Vector2f feedforward_voltages = getFeedforwardVoltages(target_trajectory,left_feedforward,right_feedforward,target_linear_accel,target_angular_accel);
 	
-		LeftDrive.move_voltage(leftVoltage+feedforward_voltages(0));
-		RightDrive.move_voltage(rightVoltage+feedforward_voltages(1)); 
+		LeftDrive.move_voltage(leftVoltage);
+		RightDrive.move_voltage(rightVoltage); 
 
 		
 		prev_time = time;
@@ -482,6 +483,24 @@ void autonomous() {
 	
 	start_time = pros::millis();
 	main_loop(path, ramsette, left_PID, right_PID, left_feedforward, right_feedforward, points_list1, start_time, PID_settle_error);
+	// 1. Load your path (your existing PathLoader)
+
+	/*
+	Path path1 = PathLoader::load("/static/blue.json");
+    MotionProfile profile(path1);
+    
+    Ramsete* cmd = new Ramsete(&left_motors, &right_motors, &loc, &profile, 2.0, 0.7);
+    cmd->initialize();  // Start timing
+    
+    while (!cmd->isFinished()) {
+        cmd->execute();   // Run Ramsete + PID control
+        pros::delay(10);  // 100Hz loop
+    }
+    
+    cmd->end(false);    // ❌ MISSING! Stops motors
+    delete cmd;         // ❌ MISSING! Free memory
+    */
+
 	//turnPID(-135);
 	//DriveToPoint({10, -15});
 	//forwardPID(24);
