@@ -3,7 +3,7 @@
 #include <cmath>
 
 struct BezierSegment {
-    Eigen::Vector2d p0, p1, p2, p3;  // Control points (x,y)
+    Eigen::Vector2d p0, p1, p2, p3; 
     double maxVel, maxAccel;
     bool reversed = false;
 
@@ -12,8 +12,7 @@ struct BezierSegment {
                   double maxVel, double maxAccel, bool reversed = false)
         : p0(p0), p1(p1), p2(p2), p3(p3), maxVel(maxVel), maxAccel(maxAccel), reversed(reversed) {}
 
-    // Evaluate position at t [0,1]
-    Eigen::Vector3d pose(double t) const {
+    Eigen::Vector3d poseAtT(double t) const {
         double u = 1.0 - t;
         double tt = t * t;
         double uu = u * u;
@@ -23,7 +22,6 @@ struct BezierSegment {
         double x = uuu * p0.x() + 3 * uu * t * p1.x() + 3 * u * tt * p2.x() + ttt * p3.x();
         double y = uuu * p0.y() + 3 * uu * t * p1.y() + 3 * u * tt * p2.y() + ttt * p3.y();
 
-        // Calculate tangent for heading (derivative)
         double dx = 3 * uu * (p1.x() - p0.x()) + 6 * u * t * (p2.x() - p1.x()) + 3 * tt * (p3.x() - p2.x());
         double dy = 3 * uu * (p1.y() - p0.y()) + 6 * u * t * (p2.y() - p1.y()) + 3 * tt * (p3.y() - p2.y());
         double theta = std::atan2(dy, dx);
@@ -31,7 +29,6 @@ struct BezierSegment {
         return Eigen::Vector3d(x, y, theta);
     }
 
-    // First derivative (velocity vector) for curvature
     Eigen::Vector2d derivative(double t) const {
         double u = 1.0 - t;
         double tt = t * t;
@@ -52,7 +49,6 @@ struct BezierSegment {
         return Eigen::Vector2d(dx, dy);
     }
 
-    // Curvature κ = |x' y'' - y' x''| / (x'^2 + y'^2)^(3/2)
     double curvature(double t) const {
         auto v1 = derivative(t);
         auto v2 = secondDerivative(t);
@@ -61,12 +57,11 @@ struct BezierSegment {
         return den > 1e-6 ? num / den : 0.0;
     }
 
-    // Approximate arc length by sampling
-    double arcLength() const {
+    double totalArcLength() const {
         return arcLengthAt(1.0);
     }
 
-    double arcLengthAt(double t) const {
+    double arcLengthAtT(double t) const {
         const int N = 50;
         double length = 0.0;
         double prevX = p0.x(), prevY = p0.y();
