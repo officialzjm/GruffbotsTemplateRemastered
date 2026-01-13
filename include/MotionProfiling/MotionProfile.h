@@ -11,11 +11,10 @@ struct MotionCommand {
     double desiredT;
 };
 
-class MotionProfile {  // No inheritance - just works
+class MotionProfile {
 private:
     std::vector<BezierSegment> segments;
     std::vector<double> times, pathTs, velocities;
-    bool reversed = false;
     double duration = 0.0;
     
     static double lerp(const std::vector<double>& xs, const std::vector<double>& ys, double x) {
@@ -39,22 +38,19 @@ public:
     MotionProfile(const Path& path) {
         segments = path.segments;
         if (segments.empty()) return;
-        
-        reversed = segments[0].reversed;
-        
+                
         std::vector<double> distances{0.0};
         std::vector<double> pathTsTemp;
         std::vector<double> vels;
         double totalDist = 0.0;
         
-        // Sample ALL segments
         for (size_t i = 0; i < segments.size(); ++i) {
-            double len = segments[i].arcLength();
+            double len = segments[i].totalArcLength();
             int n = std::max(8, (int)(len * 20));
             for (int j = 1; j <= n; ++j) {
                 double t = j/(double)n;
-                pathTsTemp.push_back(i + t);  // 0, 0.1, 0.2, ..., 1.9, 2.0, ...
-                distances.push_back(totalDist + segments[i].arcLengthAt(t));
+                pathTsTemp.push_back(i + t); 
+                distances.push_back(totalDist + segments[i].arcLengthAtT(t));
                 double kappa = segments[i].curvature(t);
                 vels.push_back(std::min(segments[i].maxVel, speedLimit(kappa)));
             }
@@ -65,12 +61,11 @@ public:
             vels.back() = std::min(path.endSpeed, vels.back());
         }
         
-        // NOW arrays match sizes perfectly
         times.reserve(vels.size());
         pathTs.reserve(vels.size());
         velocities.reserve(vels.size());
         
-        times.push_back(0.0);
+        times.push_back(0.0)
         pathTs.push_back(0.0);
         velocities.push_back(path.startSpeed);
         
@@ -96,6 +91,8 @@ public:
         size_t i = std::min<size_t>(std::floor(pathT), segments.size() - 1);
         double localT = pathT - i;
         
+        bool reversed = segments[i].reversed; 
+
         Eigen::Vector3d pose = segments[i].pose(localT);
         if (reversed) pose.z() += M_PI;
         
