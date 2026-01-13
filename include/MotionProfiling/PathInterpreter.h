@@ -21,6 +21,5 @@ struct Path {
 
 class PathLoader {
 public:
-    // Load path JSON into segments and events
     static Path load(const std::string& file);
 };
