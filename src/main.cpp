@@ -465,13 +465,12 @@ void autonomous() {
 	PID left_PID  = PID(0.3, 0.02, 0.005);
 	PID right_PID = PID(0.3, 0.02, 0.005);
 
-	// Optional: integral bounds
-	left_PID.UpdateIntegralValues(100, 500);   // min/max integral clamp
+	left_PID.UpdateIntegralValues(100, 500); 
 	right_PID.UpdateIntegralValues(100, 500);
 
 	float PID_settle_error = 700;
-
-	Feedforward left_feedforward  = Feedforward(1.5, 0.35, 0.01);  // kS, kV, kA
+	//reminder tune the pids to match the new units and in ramsestecmd
+	Feedforward left_feedforward  = Feedforward(1.5, 0.35, 0.01);
 	Feedforward right_feedforward = Feedforward(1.5, 0.35, 0.01);
 
 
@@ -483,22 +482,21 @@ void autonomous() {
 	
 	start_time = pros::millis();
 	main_loop(path, ramsette, left_PID, right_PID, left_feedforward, right_feedforward, points_list1, start_time, PID_settle_error);
-	// 1. Load your path (your existing PathLoader)
 
 	/*
 	Path path1 = PathLoader::load("/static/blue.json");
     MotionProfile profile(path1);
     
     Ramsete* cmd = new Ramsete(&left_motors, &right_motors, &loc, &profile, 2.0, 0.7);
-    cmd->initialize();  // Start timing
+    cmd->initialize()
     
     while (!cmd->isFinished()) {
-        cmd->execute();   // Run Ramsete + PID control
-        pros::delay(10);  // 100Hz loop
+        cmd->execute(); 
+        pros::delay(10);
     }
     
-    cmd->end(false);    // ❌ MISSING! Stops motors
-    delete cmd;         // ❌ MISSING! Free memory
+    cmd->end(false);
+    delete cmd;
     */
 
 	//turnPID(-135);
