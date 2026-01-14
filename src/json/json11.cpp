@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-#include "json11.hpp"
+#include "json/json.h"
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -788,3 +788,4 @@ bool Json::has_shape(const shape & types, string & err) const {
 }
 
 } // namespace json11s
+
