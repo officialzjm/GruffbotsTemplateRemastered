@@ -3,35 +3,21 @@
 #include <fstream>
 #include <sstream>
 
-Path PathLoader::load(const std::string& file) {
-    Path out;
+Path PathLoader::load(const std::asset& file) {
+    Path path;
 
-    std::ifstream f(file);
-    if (!f.is_open()) {
-        std::cerr << "Failed to open path file: " << file << "\n";
-        return out;
-    }
-
-    // Read entire file content
-    std::ostringstream buf;
-    buf << f.rdbuf();
-    std::string content = buf.str();
-    f.close();
-
-    // Parse JSON with json11
+    std::string content(reinterpret_cast<const char*>(file.data), file.size);
     std::string err;
-    json11::Json j = json11::Json::parse(content, err);
+    json11::Json parsedJson = json11::Json::parse(content, err);
+    
     if (!err.empty()) {
-        std::cerr << "JSON parse error: " << err << "\n";
-        return out;
+        return path;
     }
 
-    // Load start/end speeds
-    out.startSpeed = j["start_speed"].number_value();
-    out.endSpeed = j["end_speed"].number_value();
+    path.startSpeed = parsedJson["start_speed"].number_value();
+    path.endSpeed = parsedJson["end_speed"].number_value();
 
-    // Load segments
-    for (auto& s : j["segments"].array_items()) {
+    for (auto& s : parsedJson["segments"].array_items()) {
         auto& p = s["path"];
 
         BezierSegment seg;
@@ -43,16 +29,16 @@ Path PathLoader::load(const std::string& file) {
         seg.maxAccel = s["constraints"]["accel"].number_value();
         seg.reversed = s["inverted"].bool_value();
 
-        out.segments.push_back(seg);
+        path.segments.push_back(seg);
     }
 
-    // Load events
-    for (auto& e : j["commands"].array_items()) {
+    
+    for (auto& e : parsedJson["commands"].array_items()) {
         Event ev;
         ev.t = e["t"].number_value();
         ev.name = e["name"].string_value();
-        out.events.push_back(ev);
+        path.events.push_back(ev);
     }
 
-    return out;
+    return path;
 }
