@@ -5,6 +5,19 @@
 #include "Eigen/Eigen"
 #include <fstream>
 #include "json/json.h"
+#include <stdint>
+#include <cstddef>
+
+struct asset {
+	const uint8_t* data;
+	size_t size;
+};
+
+#define ASSET(x)                                                                                                       \
+    extern "C" {                                                                                                       \
+    extern uint8_t _binary_static_##x##_start[], _binary_static_##x##_size[];                                          \
+    static asset x = {_binary_static_##x##_start, (size_t)_binary_static_##x##_size};                                  \
+    }
 
 struct Event {
     double t;
