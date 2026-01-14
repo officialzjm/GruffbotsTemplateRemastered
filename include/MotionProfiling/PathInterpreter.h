@@ -15,8 +15,8 @@ struct asset {
 
 #define ASSET(x)                                                                                                       \
     extern "C" {                                                                                                       \
-    extern uint8_t _binary_static_##x##_start[], _binary_static_##x##_size[];                                          \
-    static asset x = {_binary_static_##x##_start, (size_t)_binary_static_##x##_size};                                  \
+    extern uint8_t _binary_static_##x##_json_start[], _binary_static_##x##_json_size[];                                          \
+    static asset x = {_binary_static_##x##_json_start, (size_t)_binary_static_##x##_json_size};                                  \
     }
 
 struct Event {
