@@ -34,5 +34,5 @@ struct Path {
 
 class PathLoader {
 public:
-    static Path load(const std::string& file);
+    static Path load(const std::asset& fileName);
 };
